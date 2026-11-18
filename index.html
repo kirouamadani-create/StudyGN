@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyGN - Révision Intelligente</title>
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --primary: #ff6600;
+      --border: #e0e0e0;
+      --card-bg: #f9f9f9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      min-height: 100vh;
+    }
+    aside {
+      width: 240px;
+      border-right: 1px solid var(--border);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #fff;
+    }
+    aside h1 {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin: 0 0 20px 0;
+    }
+    aside button {
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    aside button:hover, aside button.active {
+      background: #fff3eb;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    main {
+      flex: 1;
+      padding: 30px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 10px;
+      font-family: inherit;
+    }
+    .course-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      background: #ff660020;
+      color: var(--primary);
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      aside { width: 100%; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; }
+      aside h1 { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <h1>StudyGN</h1>
+    <button class="nav-btn active" data-tab="cours">📚 Cours</button>
+    <button class="nav-btn" data-tab="reviser">🧠 Réviser</button>
+    <button class="nav-btn" data-tab="assistant">💬 Assistant</button>
+    <button class="nav-btn" data-tab="sauvegarde">💾 Sauvegarde</button>
+  </aside>
+
+  <main>
+    <div id="tab-cours" class="tab active">
+      <h2>Mes cours</h2>
+      <div class="card">
+        <h3>Importer un nouveau cours (PDF)</h3>
+        <input type="text" id="matiereInput" placeholder="Matière (ex: Économie, Biologie, Droit...)">
+        <input type="file" id="pdfInput" accept=".pdf" style="margin-bottom: 15px; display: block;">
+        <button id="importBtn" class="btn-primary">Analyser le PDF avec l'IA</button>
+        <p id="statusMsg" style="margin-top: 10px; font-weight: 500; color: var(--primary);"></p>
+      </div>
+      <div id="coursesList"></div>
+    </div>
+
+    <div id="tab-reviser" class="tab">
+      <h2>Fiches & Quiz générés</h2>
+      <div id="revisionContent">
+        <p>Sélectionne ou importe un cours pour afficher son résumé, ses flashcards et son quiz.</p>
+      </div>
+    </div>
+
+    <div id="tab-assistant" class="tab">
+      <h2>Assistant de cours IA</h2>
+      <div class="card">
+        <p>Pose une question : l'IA répondra uniquement à partir des cours PDF que tu as importés.</p>
+        <textarea id="questionInput" rows="3" placeholder="Ex: Explique-moi la loi de l'offre et de la demande selon mon cours..."></textarea>
+        <button id="askBtn" class="btn-primary">Demander à l'assistant</button>
+        <div id="chatResponse" style="margin-top: 15px; white-space: pre-wrap;"></div>
+      </div>
+    </div>
+
+    <div id="tab-sauvegarde" class="tab">
+      <h2>Sauvegarde locale chiffrée (.sabk)</h2>
+      <div class="card">
+        <p>Tes cours sont stockés 100 % sur ton appareil. Exporte une sauvegarde chiffrée pour ne rien perdre.</p>
+        <input type="text" id="backupPass" placeholder="Mot de passe de chiffrement (6 caractères min)">
+        <button id="exportBtn" class="btn-primary">Télécharger ma sauvegarde (.sabk)</button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
